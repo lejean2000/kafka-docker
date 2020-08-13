@@ -1,21 +1,42 @@
-version: '2'
+version: '3'
 services:
   zookeeper:
-    image: wurstmeister/zookeeper
+    image: zookeeper:latest
     ports:
       - "2181:2181"
+      - "8080:8080"
   kafka:
     build: .
     ports:
       - "9092:9092"
+      - "9999:9999"
     depends_on:
         - zookeeper      
     environment:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${URL}:9092
       KAFKA_LISTENERS: PLAINTEXT://kafka:9092      
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_JVM_PERFORMANCE_OPTS: "-XX:+UnlockExperimentalVMOptions -XX:+UseZGC -XX:SoftMaxHeapSize=2G"
       KAFKA_HEAP_OPTS: '-Xms1g -Xmx5g'
+      KAFKA_JMX_HOSTNAME: "kafka"
+      KAFKA_JMX_PORT: 9999
+      KAFKA_JMX_OPTS: "-Djava.rmi.server.hostname=kafka
+      -Dcom.sun.management.jmxremote.local.only=false
+      -Dcom.sun.management.jmxremote.rmi.port=9999
+      -Dcom.sun.management.jmxremote.port=9999
+      -Dcom.sun.management.jmxremote.authenticate=false
+      -Dcom.sun.management.jmxremote.ssl=false"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+  kafka-manager:
+    image: hlebalbau/kafka-manager:latest
+    container_name: kafka-manager
+    restart: unless-stopped
+    depends_on:
+      - zookeeper
+    ports:
+      - "9000:9000"
+    environment:
+      ZK_HOSTS: "zookeeper:2181"
+    command: -Dpidfile.path=/dev/null

@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+# docker build --build-arg vcs_ref=`git rev-parse --short HEAD` --build-arg build_date=`date -u +"%Y-%m-%dT%H:%M:%SZ"` .
+
 BASE_IMAGE="farrider/kafka"
 IMAGE_VERSION="$1"
 
