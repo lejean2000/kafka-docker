@@ -2,14 +2,14 @@
 kafka-docker
 ============
 
-Dockerfile for [Apache Kafka](http://kafka.apache.org/)
+Dockerfile for [Apache Kafka](http://kafka.apache.org/) 2.6.0
 
 ---
 
 ## Pre-Requisites
 
 - install docker-compose [https://docs.docker.com/compose/install/](https://docs.docker.com/compose/install/)
-- modify the ```KAFKA_ADVERTISED_HOST_NAME``` in [docker-compose.yml](https://raw.githubusercontent.com/wurstmeister/kafka-docker/master/docker-compose.yml) to match your docker host IP (Note: Do not use localhost or 127.0.0.1 as the host ip if you want to run multiple brokers.)
+- modify the ```KAFKA_ADVERTISED_HOST_NAME``` in [docker-compose.yml] to match your docker host IP (Note: Do not use localhost or 127.0.0.1 as the host ip if you want to run multiple brokers.)
 - if you want to customize any Kafka parameters, simply add them as environment variables in ```docker-compose.yml```, e.g. in order to increase the ```message.max.bytes``` parameter set the environment to ```KAFKA_MESSAGE_MAX_BYTES: 2000000```. To turn off automatic topic creation set ```KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'```
 - Kafka's log4j usage can be customized by adding environment variables prefixed with ```LOG4J_```. These will be mapped to ```log4j.properties```. For example: ```LOG4J_LOGGER_KAFKA_AUTHORIZER_LOGGER=DEBUG, authorizerAppender```
 
@@ -141,7 +141,7 @@ In the above example the AWS metadata service is used to put the instance's avai
 
 ## JMX
 
-For monitoring purposes you may wish to configure JMX. Additional to the standard JMX parameters, problems could arise from the underlying RMI protocol used to connect
+For monitoring purposes you may wish to configure JMX. Additional to the standard JMX parameters, problems could arise from the underlying RMI protocol used to connect.
 
 * java.rmi.server.hostname - interface to bind listening port
 * com.sun.management.jmxremote.rmi.port - The port to service RMI requests
@@ -151,33 +151,6 @@ For example, to connect to a kafka running locally (assumes exposing port 1099)
       KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote.rmi.port=1099"
       JMX_PORT: 1099
 
-Jconsole can now connect at ```jconsole 192.168.99.100:1099```
+VisualVM / JConsole can now connect at ```jconsole 192.168.99.100:1099```
 
-## Docker Swarm Mode
-
-The listener configuration above is necessary when deploying Kafka in a Docker Swarm using an overlay network. By separating OUTSIDE and INSIDE listeners, a host can communicate with clients outside the overlay network while still benefiting from it from within the swarm.
-
-In addition to the multiple-listener configuration, additional best practices for operating Kafka in a Docker Swarm include:
-
-* Use "deploy: global" in a compose file to launch one and only one Kafka broker per swarm node.
-* Use compose file version '3.2' (minimum Docker version 16.04) and the "long" port definition with the port in "host" mode instead of the default "ingress" load-balanced port binding. This ensures that outside requests are always routed to the correct broker. For example:
-
-```
-ports:
-   - target: 9094
-     published: 9094
-     protocol: tcp
-     mode: host
-```
-
-Older compose files using the short-version of port mapping may encounter Kafka client issues if their connection to individual brokers cannot be guaranteed.
-
-See the included sample compose file ```docker-compose-swarm.yml```
-
-## Release process
-
-See the [wiki](https://github.com/wurstmeister/kafka-docker/wiki/ReleaseProcess) for information on adding or updating versions to release to Dockerhub.
-
-## Tutorial
-
-[http://wurstmeister.github.io/kafka-docker/](http://wurstmeister.github.io/kafka-docker/)
+When using a host name instead of 127.0.0.1 and connect to its ```[ip]:9999``` make sure that ```hostname``` can be resolved by VisualVM. This may need changes to ```/etc/hosts.```

@@ -20,4 +20,3 @@ if __name__ == '__main__':
         producer.produce(json.dumps(msg).encode("utf-8"))
         if i%1000 == 1:
             print(json.dumps(msg))
-
