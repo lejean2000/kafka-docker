@@ -15,8 +15,9 @@ if __name__ == '__main__':
     producer = topic.get_producer(linger_ms=1000, sync=True)
     i = 0
     while True:
-        msg = {'timestamp': time.time(), 'id:':i, 'value': randint(1, 1000)}
-        i = i+1
+        key = 'k' + str(randint(1, 1000))
+        msg = {'ts': round(1000*time.time()), 'id':key, 'value': randint(1, 1000)}
+        i = i + 1
         producer.produce(json.dumps(msg).encode("utf-8"))
         if i%1000 == 1:
             print(json.dumps(msg))
