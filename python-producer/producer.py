@@ -1,18 +1,29 @@
-"""[summary]
+"""Test Kafka Producer
 """
 import os
 import time
-import logging
 import json
 from random import randint
 from pykafka import KafkaClient
+from pykafka.common import CompressionType
 
 if __name__ == '__main__':
-    # logging.basicConfig(level='DEBUG')
     kafka_broker = os.environ['KAFKA_BROKER']
+    topic = os.getenv('KAFKA_TOPIC', 'test_kafka_topic')
+    use_rdkafka = os.getenv('USE_RDKAFKA') is not None
+    use_snappy = CompressionType.SNAPPY if os.getenv('USE_SNAPPY') is not None else 0
+
     client = KafkaClient(hosts=kafka_broker)
-    topic = client.topics['ivan']
-    producer = topic.get_producer(linger_ms=1000, sync=True)
+    topic = client.topics[topic]
+    if use_rdkafka:
+        print ("Using RDKafka")
+
+    producer = topic.get_producer(
+        sync=True,
+        required_acks=0,
+        use_rdkafka=use_rdkafka,
+        compression=use_snappy
+    )
     i = 0
     while True:
         key = 'k' + str(randint(1, 1000))
@@ -20,4 +31,4 @@ if __name__ == '__main__':
         i = i + 1
         producer.produce(json.dumps(msg).encode("utf-8"))
         if i%1000 == 1:
-            print(json.dumps(msg))
+            print(i, "messages", json.dumps(msg))

@@ -1,0 +1,196 @@
+#Danlex Cluster Configuration
+version: '3.6'
+
+services:
+  zoo1:
+    image: "zookeeper:3.6.1"
+    container_name: zoo1
+    hostname: zoo1
+    volumes:
+      - /opt/data/zoo1/data:/data
+      - /opt/data/zoo1/datalog:/datalog
+      - /opt/data/zoo1/log:/logs
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: "zoo1:2181,zoo2:2181"
+
+  zoo2:
+    image: "zookeeper:3.6.1"
+    container_name: zoo2
+    hostname: zoo2
+    volumes:
+      - /opt/data/zoo2/data:/data
+      - /opt/data/zoo2/datalog:/datalog
+      - /opt/data/zoo2/log:/logs
+    environment:
+      ZOOKEEPER_SERVER_ID: 2
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: "zoo1:2181,zoo2:2181"
+
+  broker1:
+    image: "farrider/kafka"
+    hostname: broker1
+    container_name: broker1
+    depends_on:
+      - zoo1
+      - zoo2    
+    ports:
+      - 29001:29001
+      - 9001:9001
+    volumes:
+      - /opt/data/broker1:/kafka    
+    environment:
+      KAFKA_BROKER_ID: 11
+      KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181,zoo2:2181"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${URL}:29001
+      KAFKA_LISTENERS: PLAINTEXT://broker1:29001
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_LOG_RETENTION_HOURS: 336
+      KAFKA_COMPRESSION_TYPE: snappy
+      KAFKA_JMX_HOSTNAME: broker1
+      KAFKA_JVM_PERFORMANCE_OPTS: "-XX:+UnlockExperimentalVMOptions -XX:+UseZGC -XX:SoftMaxHeapSize=2G"
+      KAFKA_HEAP_OPTS: -Xms1g -Xmx5g
+      KAFKA_JMX_PORT: '9001'
+      KAFKA_JMX_OPTS: "-Djava.rmi.server.hostname=broker1
+      -Dcom.sun.management.jmxremote.local.only=false
+      -Dcom.sun.management.jmxremote.rmi.port=9001
+      -Dcom.sun.management.jmxremote.port=9001
+      -Dcom.sun.management.jmxremote.authenticate=false
+      -Dcom.sun.management.jmxremote.ssl=false"
+
+  broker2:
+    image: "farrider/kafka"
+    hostname: broker2
+    container_name: broker2
+    depends_on:
+      - zoo1
+      - zoo2    
+    ports:
+      - 29002:29002
+      - 9002:9002
+    volumes:
+      - /opt/data/broker2:/kafka    
+    environment:
+      KAFKA_BROKER_ID: 12
+      KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181,zoo2:2181"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${URL}:29002
+      KAFKA_LISTENERS: PLAINTEXT://broker2:29002
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_LOG_RETENTION_HOURS: 336
+      KAFKA_COMPRESSION_TYPE: snappy
+      KAFKA_JMX_HOSTNAME: broker2
+      KAFKA_JVM_PERFORMANCE_OPTS: "-XX:+UnlockExperimentalVMOptions -XX:+UseZGC -XX:SoftMaxHeapSize=2G"
+      KAFKA_HEAP_OPTS: -Xms1g -Xmx5g
+      KAFKA_JMX_PORT: '9002'
+      KAFKA_JMX_OPTS: "-Djava.rmi.server.hostname=broker2
+      -Dcom.sun.management.jmxremote.local.only=false
+      -Dcom.sun.management.jmxremote.rmi.port=9002
+      -Dcom.sun.management.jmxremote.port=9002
+      -Dcom.sun.management.jmxremote.authenticate=false
+      -Dcom.sun.management.jmxremote.ssl=false"
+
+  broker3:
+    image: "farrider/kafka"
+    hostname: broker3
+    container_name: broker3
+    depends_on:
+      - zoo1
+      - zoo2    
+    ports:
+      - 29003:29003
+      - 9003:9003
+    volumes:
+      - /opt/data/broker3:/kafka    
+    environment:
+      KAFKA_BROKER_ID: 13
+      KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181,zoo2:2181"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${URL}:29003
+      KAFKA_LISTENERS: PLAINTEXT://broker3:29003
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_LOG_RETENTION_HOURS: 336
+      KAFKA_COMPRESSION_TYPE: snappy
+      KAFKA_JMX_HOSTNAME: broker3
+      KAFKA_JVM_PERFORMANCE_OPTS: "-XX:+UnlockExperimentalVMOptions -XX:+UseZGC -XX:SoftMaxHeapSize=2G"
+      KAFKA_HEAP_OPTS: -Xms1g -Xmx5g
+      KAFKA_JMX_PORT: '9003'
+      KAFKA_JMX_OPTS: "-Djava.rmi.server.hostname=broker3 
+      -Dcom.sun.management.jmxremote.local.only=false
+      -Dcom.sun.management.jmxremote.rmi.port=9003
+      -Dcom.sun.management.jmxremote.port=9003
+      -Dcom.sun.management.jmxremote.authenticate=false
+      -Dcom.sun.management.jmxremote.ssl=false"
+  
+  kafka-manager:
+    image: hlebalbau/kafka-manager:latest
+    container_name: kafka-manager
+    restart: unless-stopped
+    depends_on:
+      - zoo1
+      - zoo2
+    ports:
+      - "9000:9000"
+    environment:
+      ZK_HOSTS: "zoo1:2181,zoo2:2181"
+    command: -Dpidfile.path=/dev/null
+
+  ksqldb-server:
+    image: confluentinc/ksqldb-server:0.11.0
+    hostname: ksqldb-server
+    container_name: ksqldb-server
+    restart: unless-stopped
+    depends_on:
+      - broker1
+      - broker2
+      - broker3
+    ports:
+      - "8088:8088"
+    environment:
+      KSQL_LISTENERS: http://0.0.0.0:8088
+      KSQL_BOOTSTRAP_SERVERS: broker1:29001,broker2:29002,broker3:29003
+      KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
+      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
+      KSQL_KSQL_CONNECT_WORKER_CONFIG: "/connect/connect.properties"
+      KSQL_CONNECT_GROUP_ID: "ksql-connect-cluster"
+      KSQL_CONNECT_BOOTSTRAP_SERVERS: broker1:29001,broker2:29002,broker3:29003
+      KSQL_CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.storage.StringConverter"
+      KSQL_CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      KSQL_CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+      KSQL_CONNECT_CONFIG_STORAGE_TOPIC: "ksql-connect-configs"
+      KSQL_CONNECT_OFFSET_STORAGE_TOPIC: "ksql-connect-offsets"
+      KSQL_CONNECT_STATUS_STORAGE_TOPIC: "ksql-connect-statuses"
+      KSQL_CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 2
+      KSQL_CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 2
+      KSQL_CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 2
+      KSQL_CONNECT_PLUGIN_PATH: "/usr/share/kafka/plugins"
+      KSQL_CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
+    volumes:
+      - /opt/data/ksqldb/jdbc:/usr/share/kafka/plugins/jdbc
+
+  ksqldb-cli:
+    image: confluentinc/ksqldb-cli:0.11.0
+    container_name: ksqldb-cli
+    restart: unless-stopped
+    depends_on:
+      - broker1
+      - broker2
+      - broker3
+      - ksqldb-server
+    entrypoint: /bin/sh
+    tty: true
