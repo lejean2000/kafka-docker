@@ -1,0 +1,15 @@
+{
+    "machine": "TestMachineIvan",
+
+    "X.general_health_status": {
+        "freq_seconds": 5,
+        "type": "enum",
+        "enum":["00ff40;Fully operational", "ffbf00;Keep under observation", "ff0000;Major fault expected"]
+    },
+
+    "G.gps": {
+        "freq_seconds": 5,
+        "type": "enum",
+        "enum":["30.06;45.16", "43.03;18.01", "18.18;14.82"]
+    }
+}
