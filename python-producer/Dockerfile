@@ -8,4 +8,4 @@ RUN apk add --no-cache musl-dev gcc g++ git librdkafka-dev snappy-dev \
 && python -m pip install python-snappy \
 && python -m pip install --upgrade kazoo
 
-ENTRYPOINT ["/usr/local/bin/python", "/tmp/producer.py"]
+ENTRYPOINT ["/usr/local/bin/python", "-u", "/tmp/producer.py"]

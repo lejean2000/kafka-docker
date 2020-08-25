@@ -40,7 +40,7 @@ if __name__ == '__main__':
 
     i = 0
 
-    machine = spec.pop("machine")
+    machines = spec.pop("machines")
 
     for key in spec:
         spec[key]["time"] = datetime.now(timezone.utc)
@@ -57,12 +57,15 @@ if __name__ == '__main__':
                 continue
 
             spec[key]["time"] = now
-            generated = produce_random(key, spec)
 
-            msg = {"m":machine, "key":key, "value":generated, "ts":now.isoformat()}
-            i = i + 1
-            producer.produce(json.dumps(msg).encode("utf-8"))
-            if i%print_every == 0:
-                print(i, "messages", json.dumps(msg))
+            #produce one message for each machine
+            for m in machines:
+                generated = produce_random(key, spec)
+                msg = {"m":m, "k":key, "v":generated, "ts":now.isoformat()}
+                producer.produce(json.dumps(msg).encode("utf-8"))
+
+                i = i + 1
+                if i%print_every == 0:
+                    print(i, "messages", json.dumps(msg))
 
         time.sleep(1)
